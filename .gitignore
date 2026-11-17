@@ -1,0 +1,7 @@
+*.duckdb
+*.duckdb.wal
+
+# dbt-generated files
+target/
+logs/
+.user.yml

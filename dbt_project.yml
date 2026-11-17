@@ -1,0 +1,9 @@
+name: xeneta
+version: "1.0.0"
+config-version: 2
+
+profile: xeneta
+
+model-paths: ["models"]
+clean-targets:
+  - "target"
