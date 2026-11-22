@@ -1,0 +1,5 @@
+SELECT
+    TRY_CAST(D_ID AS BIGINT) AS D_ID,
+    CURRENCY,
+    TRY_CAST(CHARGE_VALUE AS DECIMAL(18, 6)) AS CHARGE_VALUE
+FROM {{ source('raw', 'charges') }}

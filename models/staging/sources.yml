@@ -1,0 +1,144 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    tables:
+      - name: ports
+        columns:
+          - name: PID
+            tests:
+              - not_null
+              - unique:
+                  config:
+                    severity: warn
+          - name: CODE
+            tests:
+              - not_null
+              - unique:
+                  config:
+                    severity: warn
+          - name: SLUG
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw', 'regions')
+                  field: SLUG
+
+      - name: regions
+        columns:
+          - name: SLUG
+            tests:
+              - not_null
+              - unique
+
+      - name: exchange_rates
+        columns:
+          - name: DAY
+            tests:
+              - not_null
+          - name: CURRENCY
+            tests:
+              - not_null
+
+      - name: datapoints
+        columns:
+          - name: D_ID
+            tests:
+              - not_null
+              - unique
+          - name: ORIGIN_PID
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw', 'ports')
+                  field: PID
+          - name: DESTINATION_PID
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw', 'ports')
+                  field: PID
+          - name: VALID_FROM
+            tests:
+              - not_null
+          - name: VALID_TO
+            tests:
+              - not_null
+
+      - name: charges
+        columns:
+          - name: D_ID
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw', 'datapoints')
+                  field: D_ID
+
+models:
+  - name: stg_ports
+    columns:
+      - name: PID
+        tests:
+          - not_null
+          - unique
+      - name: CODE
+        tests:
+          - not_null
+          - unique
+      - name: SLUG
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_regions')
+              field: SLUG
+
+  - name: stg_regions
+    columns:
+      - name: SLUG
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_exchange_rates
+    columns:
+      - name: DAY
+        tests:
+          - not_null
+      - name: CURRENCY
+        tests:
+          - not_null
+
+  - name: stg_datapoints
+    columns:
+      - name: D_ID
+        tests:
+          - not_null
+          - unique
+      - name: ORIGIN_PID
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_ports')
+              field: PID
+      - name: DESTINATION_PID
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_ports')
+              field: PID
+      - name: VALID_FROM
+        tests:
+          - not_null
+      - name: VALID_TO
+        tests:
+          - not_null
+
+  - name: stg_charges
+    columns:
+      - name: D_ID
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_datapoints')
+              field: D_ID

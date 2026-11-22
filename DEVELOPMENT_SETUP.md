@@ -31,3 +31,37 @@ with:
 ```sh
 ../.venv/bin/dbt parse --profiles-dir .
 ```
+
+Run the raw key validations with:
+
+```sh
+../.venv/bin/dbt test --profiles-dir . --select source:raw
+```
+
+Port uniqueness tests are expected to report the repeated records currently
+present in the input. See `ASSUMPTIONS.md` for the uniqueness rules and the
+reason charges are not given a uniqueness test.
+
+Run type-conversion checks on the raw values with:
+
+```sh
+../.venv/bin/dbt test --profiles-dir . --select path:tests/staging/types
+```
+
+The source tests also validate that datapoint ports, port regions, and charge
+datapoints exist. A custom completeness test checks that each charge currency
+has an exchange rate for every day of its contract's validity period.
+
+Validate that each contract's start date is on or before its end date and that
+the sample validity dates stay within the brief's expected date window with:
+
+```sh
+../.venv/bin/dbt test --profiles-dir . --select path:tests/staging/dates
+```
+
+Build and validate the typed staging views with:
+
+```sh
+../.venv/bin/dbt run --profiles-dir . --select staging
+../.venv/bin/dbt test --profiles-dir . --select staging
+```

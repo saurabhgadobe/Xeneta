@@ -7,3 +7,9 @@ profile: xeneta
 model-paths: ["models"]
 clean-targets:
   - "target"
+
+models:
+  xeneta:
+    staging:
+      +schema: staging
+      +materialized: view
