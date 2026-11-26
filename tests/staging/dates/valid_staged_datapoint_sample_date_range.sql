@@ -1,0 +1,7 @@
+SELECT
+    D_ID,
+    VALID_FROM,
+    VALID_TO
+FROM {{ ref('stg_datapoints') }}
+WHERE VALID_FROM < DATE '2021-01-01'
+   OR VALID_TO > DATE '2022-06-01'

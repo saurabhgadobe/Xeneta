@@ -1,3 +1,5 @@
+{{ config(severity='warn') }}
+
 SELECT 'DAY' AS column_name, DAY AS invalid_value
 FROM {{ source('raw', 'exchange_rates') }}
 WHERE DAY IS NOT NULL

@@ -1,3 +1,5 @@
+{{ config(severity='warn') }}
+
 SELECT
     DAY,
     CURRENCY

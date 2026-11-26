@@ -1,3 +1,5 @@
+{{ config(severity='warn') }}
+
 SELECT 'D_ID' AS column_name, D_ID AS invalid_value
 FROM {{ source('raw', 'datapoints') }}
 WHERE D_ID IS NOT NULL

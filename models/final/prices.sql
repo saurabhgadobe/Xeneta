@@ -1,0 +1,67 @@
+{{ config(materialized='table') }}
+
+WITH contract_days AS (
+    SELECT
+        D_ID,
+        BATCH_ID AS DATAPOINTS_BATCH_ID,
+        SOURCE_FILE AS DATAPOINTS_SOURCE_FILE,
+        INGESTED_AT AS DATAPOINTS_INGESTED_AT,
+        ORIGIN_PID,
+        DESTINATION_PID,
+        EQUIPMENT_ID,
+        COMPANY_ID,
+        SUPPLIER_ID,
+        UNNEST(GENERATE_SERIES(VALID_FROM, VALID_TO, INTERVAL 1 DAY))::DATE AS DAY
+    FROM {{ ref('stg_datapoints') }}
+),
+daily_prices AS (
+    SELECT
+        cd.D_ID,
+        cd.DATAPOINTS_BATCH_ID,
+        cd.DATAPOINTS_SOURCE_FILE,
+        cd.DATAPOINTS_INGESTED_AT,
+        cd.DAY,
+        cd.ORIGIN_PID,
+        cd.DESTINATION_PID,
+        cd.EQUIPMENT_ID,
+        cd.COMPANY_ID,
+        cd.SUPPLIER_ID,
+        STRING_AGG(DISTINCT c.BATCH_ID, ', ' ORDER BY c.BATCH_ID) AS CHARGES_BATCH_IDS,
+        STRING_AGG(DISTINCT c.SOURCE_FILE, ', ' ORDER BY c.SOURCE_FILE) AS CHARGES_SOURCE_FILES,
+        MAX(c.INGESTED_AT) AS CHARGES_INGESTED_AT,
+        SUM(c.CHARGE_VALUE / er.RATE) AS PRICE_USD
+    FROM contract_days AS cd
+    INNER JOIN {{ ref('stg_charges') }} AS c
+        ON cd.D_ID = c.D_ID
+    INNER JOIN {{ ref('stg_exchange_rates') }} AS er
+        ON cd.DAY = er.DAY
+       AND c.CURRENCY = er.CURRENCY
+    GROUP BY
+        cd.D_ID,
+        cd.DATAPOINTS_BATCH_ID,
+        cd.DATAPOINTS_SOURCE_FILE,
+        cd.DATAPOINTS_INGESTED_AT,
+        cd.DAY,
+        cd.ORIGIN_PID,
+        cd.DESTINATION_PID,
+        cd.EQUIPMENT_ID,
+        cd.COMPANY_ID,
+        cd.SUPPLIER_ID
+)
+SELECT
+    D_ID,
+    DATAPOINTS_BATCH_ID,
+    DATAPOINTS_SOURCE_FILE,
+    DATAPOINTS_INGESTED_AT,
+    CHARGES_BATCH_IDS,
+    CHARGES_SOURCE_FILES,
+    CHARGES_INGESTED_AT,
+    GREATEST(DATAPOINTS_INGESTED_AT, CHARGES_INGESTED_AT) AS INGESTED_AT,
+    DAY,
+    ORIGIN_PID,
+    DESTINATION_PID,
+    EQUIPMENT_ID,
+    COMPANY_ID,
+    SUPPLIER_ID,
+    CAST(PRICE_USD AS DECIMAL(18, 6)) AS PRICE_USD
+FROM daily_prices

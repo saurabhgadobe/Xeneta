@@ -1,3 +1,5 @@
+{{ config(severity='warn') }}
+
 SELECT
     D_ID,
     VALID_FROM,

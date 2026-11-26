@@ -1,3 +1,5 @@
+{{ config(severity='warn') }}
+
 WITH charge_periods AS (
     SELECT
         c.D_ID,

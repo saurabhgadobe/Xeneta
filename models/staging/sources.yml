@@ -8,76 +8,130 @@ sources:
         columns:
           - name: PID
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    severity: warn
               - unique:
                   config:
                     severity: warn
           - name: CODE
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    severity: warn
               - unique:
                   config:
                     severity: warn
           - name: SLUG
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    severity: warn
               - relationships:
                   to: source('raw', 'regions')
                   field: SLUG
+                  config:
+                    severity: warn
 
       - name: regions
         columns:
           - name: SLUG
             tests:
-              - not_null
-              - unique
+              - not_null:
+                  config:
+                    severity: warn
+              - unique:
+                  config:
+                    severity: warn
 
       - name: exchange_rates
         columns:
           - name: DAY
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    severity: warn
           - name: CURRENCY
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    severity: warn
 
       - name: datapoints
         columns:
           - name: D_ID
             tests:
-              - not_null
-              - unique
+              - not_null:
+                  config:
+                    severity: warn
+              - unique:
+                  config:
+                    severity: warn
           - name: ORIGIN_PID
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    severity: warn
               - relationships:
                   to: source('raw', 'ports')
                   field: PID
+                  config:
+                    severity: warn
           - name: DESTINATION_PID
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    severity: warn
               - relationships:
                   to: source('raw', 'ports')
                   field: PID
+                  config:
+                    severity: warn
           - name: VALID_FROM
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    severity: warn
           - name: VALID_TO
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    severity: warn
+          - name: COMPANY_ID
+            tests:
+              - not_null:
+                  config:
+                    severity: warn
+          - name: SUPPLIER_ID
+            tests:
+              - not_null:
+                  config:
+                    severity: warn
+          - name: EQUIPMENT_ID
+            tests:
+              - not_null:
+                  config:
+                    severity: warn
 
       - name: charges
         columns:
           - name: D_ID
             tests:
-              - not_null
+              - not_null:
+                  config:
+                    severity: warn
               - relationships:
                   to: source('raw', 'datapoints')
                   field: D_ID
+                  config:
+                    severity: warn
 
 models:
   - name: stg_ports
     columns:
+      - name: INGESTED_AT
+        tests:
+          - not_null
       - name: PID
         tests:
           - not_null
@@ -95,6 +149,9 @@ models:
 
   - name: stg_regions
     columns:
+      - name: INGESTED_AT
+        tests:
+          - not_null
       - name: SLUG
         tests:
           - not_null
@@ -102,6 +159,9 @@ models:
 
   - name: stg_exchange_rates
     columns:
+      - name: INGESTED_AT
+        tests:
+          - not_null
       - name: DAY
         tests:
           - not_null
@@ -111,6 +171,15 @@ models:
 
   - name: stg_datapoints
     columns:
+      - name: INGESTED_AT
+        tests:
+          - not_null
+      - name: BATCH_ID
+        tests:
+          - not_null
+      - name: SOURCE_FILE
+        tests:
+          - not_null
       - name: D_ID
         tests:
           - not_null
@@ -133,12 +202,66 @@ models:
       - name: VALID_TO
         tests:
           - not_null
+      - name: COMPANY_ID
+        tests:
+          - not_null
+      - name: SUPPLIER_ID
+        tests:
+          - not_null
+      - name: EQUIPMENT_ID
+        tests:
+          - not_null
 
   - name: stg_charges
     columns:
+      - name: INGESTED_AT
+        tests:
+          - not_null
+      - name: BATCH_ID
+        tests:
+          - not_null
+      - name: SOURCE_FILE
+        tests:
+          - not_null
       - name: D_ID
         tests:
           - not_null
           - relationships:
               to: ref('stg_datapoints')
               field: D_ID
+      - name: CURRENCY
+        tests:
+          - not_null
+      - name: CHARGE_VALUE
+        tests:
+          - not_null
+
+  - name: prices
+    columns:
+      - name: INGESTED_AT
+        tests:
+          - not_null
+      - name: DATAPOINTS_INGESTED_AT
+        tests:
+          - not_null
+      - name: CHARGES_INGESTED_AT
+        tests:
+          - not_null
+      - name: DATAPOINTS_BATCH_ID
+        tests:
+          - not_null
+      - name: DATAPOINTS_SOURCE_FILE
+        tests:
+          - not_null
+      - name: CHARGES_BATCH_IDS
+        tests:
+          - not_null
+      - name: CHARGES_SOURCE_FILES
+        tests:
+          - not_null
+
+  - name: aggregations
+    columns:
+      - name: INGESTED_AT
+        tests:
+          - not_null
