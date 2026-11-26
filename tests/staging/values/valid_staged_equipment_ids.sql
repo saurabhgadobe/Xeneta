@@ -1,0 +1,5 @@
+SELECT
+    D_ID,
+    EQUIPMENT_ID
+FROM {{ ref('stg_datapoints') }}
+WHERE EQUIPMENT_ID NOT BETWEEN 1 AND 6

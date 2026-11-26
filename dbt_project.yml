@@ -1,0 +1,22 @@
+name: xeneta
+version: "1.0.0"
+config-version: 2
+
+profile: xeneta
+
+model-paths: ["models"]
+clean-targets:
+  - "target"
+
+vars:
+  coverage_min_companies: 5
+  coverage_min_suppliers: 2
+
+models:
+  xeneta:
+    staging:
+      +schema: staging
+      +materialized: view
+    final:
+      +schema: final
+      +materialized: table
